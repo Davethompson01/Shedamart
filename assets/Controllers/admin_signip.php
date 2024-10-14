@@ -46,14 +46,13 @@ class SignupController {
             $this->sendResponse(['status' => 'error', 'message' => 'Email already taken.']);
             return;
         }
-
         $userId = $this->userModel->createUser($data );
         // $token = $this->tokenGenerator->generateToken($userId, $data['username'], 'admin');
         if ($userId) {
             $token = $this->tokenGenerator->generateToken($userId, $data['username'], 'admin');
     
             // Now, update the user record with the token
-            $this->userModel->updateToken($userId, $token);
+            $this->userModel->updateTokenuser($userId, $token);
     
             $this->sendResponse([
                 'status' => 'success',
@@ -62,13 +61,15 @@ class SignupController {
                 'username' => $data['username'],
                 'email' => $data['email'],
                 'number' => $data['number'],
-                'userType' => 'admin',
+                'userType' => 'user',
                 'token' => $token,
             ]);
         } else {
             $this->sendResponse(['status' => 'error', 'message' => 'Signup failed. Please try again.']);
         }
     }
+
+    
 
 
     private function updateUserToken($userId, $token) {
@@ -78,5 +79,52 @@ class SignupController {
     private function sendResponse(array $response) {
         echo json_encode($response);
         exit;
+    }
+
+
+    public function handleAdminSignup() {
+        header('Content-Type: application/json');
+        $signupRequest = new SignupRequest();
+        function getIpAddress() {
+            $ipAddress = $_SERVER['REMOTE_ADDR'];
+            if (filter_var($ipAddress, FILTER_VALIDATE_IP)) {
+                return $ipAddress;
+            } else {
+                return 'UNKNOWN';
+            }
+        }
+        
+        $data = $signupRequest->validateAdminSignupData();
+        $data['ip_address'] = getIpAddress();
+        
+        if (!$data) {
+            return; 
+        }
+    
+        if ($this->userModel->checkEmail($data['email'])) {
+            $this->sendResponse(['status' => 'error', 'message' => 'Email already taken.']);
+            return;
+        }
+    
+        $userId = $this->userModel->createAdminUser ($data);
+        if ($userId) {
+            $token = $this->tokenGenerator->generateToken($userId, $data['username'], 'admin');
+            
+            // Now, update the user record with the token
+            $this->userModel->updateToken($userId, $token);
+            
+            $this->sendResponse([
+                'status' => 'success',
+                'message' => 'Admin signup successful',
+                'id' => $userId,
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'number' => $data['number'],
+                'userType' => 'admin',
+                'token' => $token,
+            ]);
+        } else {
+            $this->sendResponse(['status' => 'error', 'message' => 'Admin signup failed. Please try again.']);
+        }
     }
 }

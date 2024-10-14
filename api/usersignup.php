@@ -11,9 +11,8 @@ require_once(__DIR__ . '/../assets/Controllers/admin_signip.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller = new App\Controllers\SignupController();
 
-    $data = json_decode(file_get_contents('php://input'), true);
-    // if (isset($data['role'])  === 'admin') {
-        $controller->handleAdminSignup();
+    // if (isset($_POST['role']) && $_POST['role'] === 'user') {
+        $controller->handleSignup();
         exit;
     // } 
     

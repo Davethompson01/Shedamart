@@ -19,11 +19,7 @@ class User{
     public function checkUser($email, $password)
     {
         $stmt = $this->db->prepare("
-            SELECT u.*, e.admin_id, emp.employee_id
-            FROM admin u
-            LEFT JOIN admin e ON u.user_id = e.user_id
-            LEFT JOIN employee emp ON u.user_id = emp.user_id
-            WHERE u.email = :email
+        SELECT * user WHERE email = :email
         ");
         $stmt->execute(['email' => $email]);
     
