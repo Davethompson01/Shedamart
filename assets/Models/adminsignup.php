@@ -49,7 +49,7 @@ class User {
     }
 
     public function updateToken($userId, $token) {
-        $query = "UPDATE admin SET user_token = :user_token WHERE user_id = :user_id";
+        $query = "UPDATE admin SET user_token = :user_token WHERE admin_id = :admin_id";
         $stmt = $this->connection->prepare($query);
         $stmt->bindParam(':user_token', $token);
         $stmt->bindParam(':admin_id', $userId);

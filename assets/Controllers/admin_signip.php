@@ -62,7 +62,6 @@ class SignupController {
                 'username' => $data['username'],
                 'email' => $data['email'],
                 'number' => $data['number'],
-                'country' => $data['country'],
                 'userType' => 'admin',
                 'token' => $token,
             ]);
