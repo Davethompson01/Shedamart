@@ -27,7 +27,7 @@ class User {
     
         $stmt = $this->connection->prepare($query);
     
-        $userType = 'employer';
+        $userType = 'ersooooooooooo';
     
         if (isset($data['password'])) {
             $hashedPassword = password_hash($data['password'], PASSWORD_ARGON2ID);
@@ -46,10 +46,8 @@ class User {
         if ($stmt->execute()) {
             return $this->connection->lastInsertId();
         }
-    
         return false;
     }
-
     public function createAdminUser ($data) {
         $query = "INSERT INTO admin (username, email, password, phoneNumber, ip_address, user_type) 
               VALUES (:username, :email, :user_password,  :user_number, :ip_address, :user_type)";
