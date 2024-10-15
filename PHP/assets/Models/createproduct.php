@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+require_once __DIR__ . "/../../config/Database.php";
+
 use App\Config\Database; // Import the Database class
 // use PDO;
 use Exception;
@@ -10,14 +12,12 @@ class ProductModel
 {
     public static function insertIntoCategoryTable($categoryName, $productData)
     {
-        // Get the database connection
         $db = (new Database())->getConnection();
 
         if (!$db) {
             throw new Exception("Database connection failed.");
         }
 
-        // Assuming each category has its own table, dynamically build the table name
         $tableName = $categoryName;
 
         // Build the SQL query

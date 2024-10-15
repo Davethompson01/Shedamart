@@ -5,6 +5,8 @@ header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
 
+use App\Controllers\ProductController;
+require_once __DIR__ . "/../assets/Controllers/createproduct.php";
 require_once __DIR__ . "/../assets/Routes/createproduct.php";
 $inputData = file_get_contents('php://input');
 $data = json_decode($inputData, true);
