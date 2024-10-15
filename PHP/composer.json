@@ -1,0 +1,13 @@
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": "PHP/app/",
+      "App\\Config\\": "PHP/config/",
+      "App\\Controllers\\": "PHP/app/Controllers/",
+      "App\\Models\\": "PHP/assets/Models/"
+    }
+  },
+  "require": {
+    "firebase/php-jwt": "^6.10"
+  }
+}
