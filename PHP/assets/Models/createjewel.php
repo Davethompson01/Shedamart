@@ -33,7 +33,8 @@ class JewelryModel
         $stmt = self::$db->prepare($sql);
 
         // Bind parameters
-        $stmt->bindParam(':categories_name', $jewelryData['categories_name']);
+        $categoryname = 'jewelry';
+        $stmt->bindParam(':categories_name', $categoryname);  
         $stmt->bindParam(':product_image', $jewelryData['product_image']);
         $stmt->bindParam(':price', $jewelryData['price']);
         $stmt->bindParam(':product_details', $jewelryData['product_details']);
