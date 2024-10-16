@@ -9,6 +9,18 @@ class ProductController
 {
     public static function insertProduct($categoryName, $productData)
     {
-        return ProductModel::insertIntoCategoryTable($categoryName, $productData);
+        return ProductModel::insertProductIntoProductsTable($categoryName, $productData);
+    }
+
+    public static function getNewlyCreatedProducts()
+    {
+        $productModel = new ProductModel();
+        return $productModel->getNewlyCreatedProducts();
+    }
+
+    public static function getMostCheckedProducts($limit = 10)
+    {
+        $productModel = new ProductModel();
+        return $productModel->getMostCheckedProducts($limit);
     }
 }

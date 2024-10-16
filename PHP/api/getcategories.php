@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 
 require_once __DIR__ . "/../assets/Routes/category.php";
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     CategoryController::listCategories();
 } else{
     echo "Invalid method passed";

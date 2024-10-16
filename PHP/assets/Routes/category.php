@@ -1,4 +1,4 @@
 <?php
 
-require_once '../assets/Models/Category.php';
-require_once '../Controllers/CategoryController.php';
+require_once __DIR__ . '/../Models/Category.php';
+require_once __DIR__ . '/../Controllers/CategoryControlle.php';
