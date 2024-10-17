@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\JewelryModel;
-require_once __DIR__ . "/../Models/createjewel.php";
+require_once __DIR__ . "/../../Models/categories/createjewel.php";
 use Exception;
 
 class JewelryController

@@ -2,40 +2,41 @@
 
 namespace App\Controllers;
 
-use App\Models\AccessoryModel; // Corrected to use a consistent class naming
-require_once __DIR__ . "/../../Models/categories/accessory.php";
+use App\Models\BookModel;
+require_once __DIR__ . "/../../Models/categories/book.php";
 use Exception;
 
-class AccessoryController
+class BookController
 {
-    public static function createAccessories($accessoryDataArray) {
+    public static function createBooks($bookDataArray) {
         try {
-            if (!is_array($accessoryDataArray)) {
+            // Ensure the incoming data is an array of book items
+            if (!is_array($bookDataArray)) {
                 return [
                     'status' => 'error',
-                    'message' => 'Invalid data format. Must be an array of accessory items.'
+                    'message' => 'Invalid data format. Must be an array of book items.'
                 ];
             }
-    
-            $accessoryIds = [];
-            foreach ($accessoryDataArray as $accessoryData) {
-                $accessoryId = AccessoryModel::insertAccess($accessoryData); // Changed accessdata to accessoryData
-                if ($accessoryId) {
-                    $accessoryIds[] = $accessoryId; // Collect all inserted accessory IDs
+
+            $bookIds = [];
+            foreach ($bookDataArray as $bookData) {
+                $bookId = BookModel::insertBook($bookData);
+                if ($bookId) {
+                    $bookIds[] = $bookId; // Collect all inserted book IDs
                 } else {
                     return [
                         'status' => 'error',
-                        'message' => 'Failed to add one or more accessory items.'
+                        'message' => 'Failed to add one or more book items.'
                     ];
                 }
             }
-    
+
             return [
                 'status' => 'success',
-                'message' => 'Accessory items added successfully.',
-                'accessory_id' => $accessoryIds // Return all the accessory IDs
+                'message' => 'Book items added successfully.',
+                'book_ids' => $bookIds // Return all the book IDs
             ];
-    
+
         } catch (Exception $e) {
             return [
                 'status' => 'error',
@@ -44,16 +45,17 @@ class AccessoryController
         }
     }
 
-    public static function displayAccessories($page = 1, $limit = 10) {
+    public static function displayBooks($page = 1, $limit = 10) {
         try {
             $offset = ($page - 1) * $limit;
-            $result = AccessoryModel::getAccessory($limit, $offset);
-    
+
+            $result = BookModel::getBooks($limit, $offset);
+
             if ($result) {
                 // Get the total number of items to calculate pagination info
-                $totalItems = AccessoryModel::getAccessoryCount(); // Get total count of items
+                $totalItems = BookModel::getBookCount(); // Get total count of items
                 $totalPages = ceil($totalItems / $limit); // Calculate total pages
-    
+
                 return [
                     'status' => 'success',
                     'data' => $result,
@@ -67,7 +69,7 @@ class AccessoryController
             } else {
                 return [
                     'status' => 'error',
-                    'message' => 'No accessory items found.'
+                    'message' => 'No book items found.'
                 ];
             }
         } catch (Exception $e) {
@@ -78,17 +80,17 @@ class AccessoryController
         }
     }
 
-    public static function deleteAccessory($accessoryId) {
-        $deleted = AccessoryModel::deleteAccessory($accessoryId);
+    public static function deleteBook($bookId) {
+        $deleted = BookModel::deleteBook($bookId);
         if ($deleted) {
             return [
                 'status' => 'success',
-                'message' => 'Accessory deleted successfully.'
+                'message' => 'Book deleted successfully.'
             ];
         }
         return [
             'status' => 'error',
-            'message' => 'Failed to delete accessory.'
+            'message' => 'Failed to delete book.'
         ];
     }
 }

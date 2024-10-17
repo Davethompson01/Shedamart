@@ -3,8 +3,7 @@
 // namespace App\Routes;
 
 use App\Controllers\JewelryController;
-require_once __DIR__ . "/../../../assets/Controllers/createjewel.php";
-
+require_once __DIR__ . "/../../../assets/Controllers/categories/createjewel.php";
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 if ($requestMethod === 'POST') {

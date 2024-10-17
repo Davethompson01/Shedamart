@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Routes;
-
+require_once __DIR__ . "/../../../assets/Controllers/categories/createjewel.php";
 use App\Controllers\JewelryController;
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-require_once __DIR__ . "/../../config/Database.php";
+require_once __DIR__ . "/../../../config/Database.php";
 
 use App\Config\Database; 
 use PDO;

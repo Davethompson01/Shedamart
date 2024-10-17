@@ -63,7 +63,7 @@ class AccessoryModel
     public static function getAccessory($limit, $offset) {
         self::initialize();
         
-        $sql = "SELECT admin_id, accessory_id, product_token, categories_name, product_image, price, product_details, colors, amount_in_stock, origin, amount_of_rating, about_items, product_name
+        $sql = "SELECT admin_id, accessories_id, product_token, categories_name, product_image, price, product_details, colors, amount_in_stock, origin, amount_of_rating, about_items, product_name
                 FROM accessories 
                 LIMIT :limit OFFSET :offset";
     
@@ -94,9 +94,9 @@ class AccessoryModel
     public static function deleteAccessory($accessoryId) {
         self::initialize();
 
-        $sql = "DELETE FROM accessories WHERE accessory_id = :accessory_id"; // Adjust table name
+        $sql = "DELETE FROM accessories WHERE accessories_id = :accessories_id"; // Adjust table name
         $stmt = self::$db->prepare($sql);
-        $stmt->bindParam(':accessory_id', $accessoryId);
+        $stmt->bindParam(':accessories_id', $accessoryId);
         return $stmt->execute();
     }
 }
