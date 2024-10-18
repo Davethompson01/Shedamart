@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\AccessoryModel; // Corrected to use a consistent class naming
+use App\Models\AccessoryModel;
 require_once __DIR__ . "/../../Models/categories/accessory.php";
 use Exception;
 
@@ -19,9 +19,9 @@ class AccessoryController
     
             $accessoryIds = [];
             foreach ($accessoryDataArray as $accessoryData) {
-                $accessoryId = AccessoryModel::insertAccess($accessoryData); // Changed accessdata to accessoryData
+                $accessoryId = AccessoryModel::insertAccess($accessoryData);
                 if ($accessoryId) {
-                    $accessoryIds[] = $accessoryId; // Collect all inserted accessory IDs
+                    $accessoryIds[] = $accessoryId;
                 } else {
                     return [
                         'status' => 'error',
@@ -33,7 +33,7 @@ class AccessoryController
             return [
                 'status' => 'success',
                 'message' => 'Accessory items added successfully.',
-                'accessory_id' => $accessoryIds // Return all the accessory IDs
+                'accessory_id' => $accessoryIds
             ];
     
         } catch (Exception $e) {
@@ -50,9 +50,8 @@ class AccessoryController
             $result = AccessoryModel::getAccessory($limit, $offset);
     
             if ($result) {
-                // Get the total number of items to calculate pagination info
-                $totalItems = AccessoryModel::getAccessoryCount(); // Get total count of items
-                $totalPages = ceil($totalItems / $limit); // Calculate total pages
+                $totalItems = AccessoryModel::getAccessoryCount();
+                $totalPages = ceil($totalItems / $limit);
     
                 return [
                     'status' => 'success',

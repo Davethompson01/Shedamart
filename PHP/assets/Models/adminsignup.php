@@ -14,7 +14,11 @@ class User {
     }
 
     public function checkEmail($email) {
-        $query = "SELECT email FROM admin WHERE email = :email";
+        $query = "
+        SELECT email FROM admin WHERE email = :email
+        UNION
+        SELECT user_email AS email FROM users WHERE user_email = :email
+    ";
         $stmt = $this->connection->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
@@ -27,7 +31,7 @@ class User {
     
         $stmt = $this->connection->prepare($query);
     
-        $userType = 'ersooooooooooo';
+        $userType = 'user';
     
         if (isset($data['password'])) {
             $hashedPassword = password_hash($data['password'], PASSWORD_ARGON2ID);
