@@ -10,7 +10,6 @@ use PDO;
 class BookModel
 {
     private static $db;
-
     public static function initialize()
     {
         if (!self::$db) {

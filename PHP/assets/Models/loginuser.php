@@ -21,7 +21,7 @@ class User {
         if ($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if (password_verify($password, $row['user_password'])) {
-                return $row; // Return user details if the password is correct
+                return $row;
             } else {
                 return "Wrong";
             }
@@ -42,7 +42,7 @@ class User {
             }
         }
     
-        return null; // No user found
+        return null;
     }
 
     

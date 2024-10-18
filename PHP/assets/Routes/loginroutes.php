@@ -6,12 +6,14 @@ require_once(__DIR__ . "/../../config/Database.php");
 require_once(__DIR__ . "/../Models/loginuser.php");
 require_once(__DIR__ . "/../views/login.php");
 require_once(__DIR__ . "/../../utilities/TokenGenerator.php");
+require_once(__DIR__ . "/../../utilities/authorisation.php"); 
 
 use App\Controllers\LoginController;
 use App\Models\User;
 use App\Controllers\LoginView;
 use App\Config\Database;
 use App\Utilities\TokenGenerator;
+use App\Utilities\Authorization;
 
 class LoginRoute {
     private $loginController;
@@ -19,9 +21,17 @@ class LoginRoute {
     private $loginView;
 
     public function __construct() {
+        // Create database connection
         $this->database = new Database();
-        $this->database = $this->database->getConnection(); // Use the getConnection method
-        $this->loginController = new LoginController(new User($this->database), new TokenGenerator());
+        $this->database = $this->database->getConnection();
+
+        // Initialize necessary utilities and controllers
+        $userModel = new User($this->database);
+        $tokenGenerator = new TokenGenerator();
+        $authorization = new Authorization('your_secret_key'); // Add your secret key here
+
+        // Pass all three dependencies to the LoginController
+        $this->loginController = new LoginController($userModel, $tokenGenerator, $authorization);
         $this->loginView = new LoginView();
     }
 
@@ -30,12 +40,11 @@ class LoginRoute {
         $email = $input['email'] ?? null;
         $password = $input['password'] ?? null;
 
-        if (empty($email) || empty($password)) {
+        if(empty($email) || empty($password)) {
             $response = ['status' => 'error', 'message' => 'Empty email or password'];
         } else {
             $response = $this->loginController->handleLogin($email, $password);
         }
-
         $this->loginView->render($response);
     }
 }

@@ -3,14 +3,32 @@
 namespace App\Controllers;
 
 use App\Models\JewelryModel;
+use App\Utilities\TokenGenerator;
+require_once __DIR__ . "/../../../utilities/tokengenerator.php";
 require_once __DIR__ . "/../../Models/categories/createjewel.php";
 use Exception;
 
 class JewelryController
 {
-    public static function createJewelry($jewelryDataArray) {
+
+    private static function isAdmin($token) {
+        // Decode the token to get user data
+        $decoded = TokenGenerator::decodeToken($token);
+        
+        // Check if user type is set and is 'admin'
+        return isset($decoded->role) && $decoded->role === 'admin';
+    }
+    
+    public static function createJewelry($jewelryDataArray, $token) {
+        
+        if (!self::isAdmin($token)) {
+            return [
+                'status' => 'error',
+                'message' => 'Unauthorized access. Only admins can create products.'
+            ];
+        }
+        
         try {
-            // Ensure the incoming data is an array of jewelry items
             if (!is_array($jewelryDataArray)) {
                 return [
                     'status' => 'error',
@@ -36,7 +54,6 @@ class JewelryController
                 'message' => 'Jewelry items added successfully.',
                 'jewelry_ids' => $jewelryIds // Return all the jewelry IDs
             ];
-    
         } catch (Exception $e) {
             return [
                 'status' => 'error',
@@ -44,6 +61,7 @@ class JewelryController
             ];
         }
     }
+    
     
 
     // public static function getJewelry($jewelryId) {
@@ -114,7 +132,14 @@ class JewelryController
     
     
 
-    public static function deleteJewelry($jewelryId) {
+    public static function deleteJewelry($jewelryId, $token) {
+        if (!self::isAdmin($token)) {
+            return [
+                'status' => 'error',
+                'message' => 'Unauthorized access. Only admins can delete products.'
+            ];
+        }
+    
         $deleted = JewelryModel::deleteJewelry($jewelryId);
         if ($deleted) {
             return [
@@ -127,4 +152,5 @@ class JewelryController
             'message' => 'Failed to delete jewelry.'
         ];
     }
+    
 }

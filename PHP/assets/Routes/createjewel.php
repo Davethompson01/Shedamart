@@ -1,4 +1,4 @@
 <?php
 
 use App\Controllers\JewelryController;
-require_once __DIR__ . "/../Controllers/createjewel.php";
+require_once __DIR__ . "/../Controllers/categories/createjewel.php";
