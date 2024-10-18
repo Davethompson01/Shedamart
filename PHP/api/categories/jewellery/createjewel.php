@@ -11,8 +11,7 @@ if ($requestMethod === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     if (isset($data['jewelryDataArray']) && isset($data['token'])) {
         $jewelryDataArray = $data['jewelryDataArray'];
-        $token = $data['token']; // Your token
-
+        $token = $data['token'];
         $result = JewelryController::createJewelry($jewelryDataArray, $token); 
         echo json_encode($result);
     } else {
