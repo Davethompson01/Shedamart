@@ -6,41 +6,41 @@ use App\Models\Product;
 use App\Config\Database;
 
 class ProductController {
-
     private $db;
 
     public function __construct() {
-        // Instantiate the Database and get the connection
+        // Create the database connection
         $database = new Database();
-        $this->db = $database->getConnection(); // Correctly assign the connection to $this->db
+        $this->db = $database->getConnection();
+        // Set the static database connection in the Product model
+        Product::setDatabase($this->db);
     }
 
     public function uploadProducts($productsData) {
-        // Initialize arrays to hold results
         $successfulUploads = [];
         $errors = [];
-    
-        // Assuming you already have a database connection in $this->db
+
+        // Loop through the products data
         foreach ($productsData as $product) {
-            // Pass both $this->db and $product to the createProduct method
-            $result = Product::createProduct($this->db, $product);
-    
+            // Call the Product model's createProduct method
+            $result = Product::createProduct($product);
+
             if (isset($result['error'])) {
-                // Handle error, store product name and error details
+                // Handle errors and add to the errors array
                 $errors[] = [
                     'product_name' => $product['product_name'],
                     'errors' => $result['error']
                 ];
             } else {
-                // Handle success, store the successful product data
+                // Add to successful uploads
                 $successfulUploads[] = [
                     'product_name' => $product['product_name'],
                     'status' => 'Uploaded successfully'
                 ];
             }
         }
-    
-        // Prepare the final response
+
+        // Return the response
         if (!empty($errors)) {
             return [
                 'status' => 'partial',

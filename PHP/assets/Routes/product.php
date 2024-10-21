@@ -5,11 +5,14 @@ require_once __DIR__ . "/../Models/product.php";
 require_once __DIR__ . "/../Controllers/products.php";
 
 use App\Config\Database;
+require_once __DIR__ . "/../Models/product.php";
 use App\Models\Product;
+
 use App\Controllers\ProductController;
 
 // Create database connection
 $database = new Database();
+$db = $database->getConnection();
 Product::setDatabase($db);
 
 header('Content-Type: application/json');
