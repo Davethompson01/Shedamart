@@ -28,7 +28,7 @@ class LoginRoute {
         // Initialize necessary utilities and controllers
         $userModel = new User($this->database);
         $tokenGenerator = new TokenGenerator();
-        $authorization = new Authorization('your_secret_key'); // Add your secret key here
+        $authorization = new Authorization('1234Sheda'); // Add your secret key here
 
         // Pass all three dependencies to the LoginController
         $this->loginController = new LoginController($userModel, $tokenGenerator, $authorization);
@@ -36,15 +36,20 @@ class LoginRoute {
     }
 
     public function handleLogin() {
+        // Get input from request body (JSON)
         $input = json_decode(file_get_contents('php://input'), true);
         $email = $input['email'] ?? null;
         $password = $input['password'] ?? null;
 
-        if(empty($email) || empty($password)) {
+        // Check if email and password are provided
+        if (empty($email) || empty($password)) {
             $response = ['status' => 'error', 'message' => 'Empty email or password'];
         } else {
+            // Delegate to the login controller
             $response = $this->loginController->handleLogin($email, $password);
         }
+
+        // Render the response via the view
         $this->loginView->render($response);
     }
 }

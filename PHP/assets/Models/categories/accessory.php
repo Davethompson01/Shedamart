@@ -37,7 +37,7 @@ class AccessoryModel
     
         // Bind parameters
         $categoryName = 'accessory'; // Set to accessory category
-        $stmt->bindParam(':categories_name', $categoryName);
+        $stmt->bindParam(':category_name', $categoryName);
         $stmt->bindParam(':product_image', $accessoryData['product_image']);
         $stmt->bindParam(':price', $accessoryData['price']);
         $stmt->bindParam(':product_details', $accessoryData['product_details']);

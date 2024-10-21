@@ -32,9 +32,7 @@ class SignupRequest {
                 $this->sendResponse(['status' => 'error', 'message' => "$field is required."]);
                 return null;
             }
-        }
-    
-        // Further validation can be done here
-        return $input; // Return the validated data
+        }   
+        return $input;
     }
 }
