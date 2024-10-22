@@ -6,7 +6,7 @@ require_once __DIR__ . '/../assets/Controllers/products.php';
 
 use App\Controllers\ProductController;
 $productController = new ProductController();
-$limit = 10;
+$limit = 20;
 $response = $productController->getRandomProducts($limit);
 
 header('Content-Type: application/json');

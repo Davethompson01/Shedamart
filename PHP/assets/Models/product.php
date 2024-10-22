@@ -103,7 +103,6 @@ class Product {
             return ['error' => 'Database connection not set'];
         }
 
-        // Query to select products randomly with a limit
         $query = "SELECT product_name, product_image, price, amount_in_stock, product_details, colors, origin, about_items 
                   FROM products 
                   ORDER BY RAND() 
