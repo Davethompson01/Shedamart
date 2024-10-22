@@ -57,8 +57,7 @@ class Product {
             return ['error' => 'Failed to upload product: ' . $errorInfo[2]];
         }
     }
-    
-    
+
     // Validate product data
     public static function validateProductData($data) {
         $errors = [];
@@ -80,5 +79,22 @@ class Product {
         }
 
         return $errors; // Return an array of errors if any
+    }
+
+    public static function getProductsByCategory($categoryName) {
+        if (!self::$db) {
+            return ['error' => 'Database connection not set'];
+        }
+
+        $query = "SELECT p.product_name, p.product_image, p.price, p.amount_in_stock, p.product_details, p.colors, p.origin, p.about_items
+                  FROM products p
+                  JOIN categories c ON p.product_category = c.categories_id
+                  WHERE c.category_name = :category_name LIMIT 0, 25";
+        
+        $stmt = self::$db->prepare($query);
+        $stmt->bindParam(':category_name', $categoryName);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

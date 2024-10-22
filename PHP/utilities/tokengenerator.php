@@ -10,31 +10,33 @@ use Firebase\JWT\SignatureInvalidException;
 
 class TokenGenerator {
     private static $secretKey = '1234Sheda';
-    private static $algorithm = 'HS256';      // Hashing algorithm for JWT
+    private static $algorithm = 'HS256'; // Hashing algorithm for JWT
 
     // Generate token with different payloads for admin and user
-    public function generateToken($userId, $username, $userRole) {
-        $issuedAt = time();
-        
-        // Set a longer expiration time for admins (e.g., 2 hours) and shorter for users (e.g., 1 hour)
-        $expirationTime = ($userRole === 'admin') ? $issuedAt + 7200 : $issuedAt + 3600;
-        
-        // Build the token payload based on the user role
+    public function generateToken($userId, $username, $email, $isAdminSignup) {
+        // Example code to assign role
+        if ($isAdminSignup) {
+            $role = 'admin'; // Ensure this is set based on the signup request
+        } else {
+            $role = 'user';
+        }
+    
+        // Create the payload
         $payload = [
-            'iss' => 'yourdomain.com',   // Issuer
-            'iat' => $issuedAt,          // Issued at
-            'exp' => $expirationTime,    // Expiration time (depends on user type)
-            'data' => [
-                'id' => $userId,
-                'username' => $username,
-                'role' => $userRole,      // Include the user's role
-                'privileges' => $userRole === 'admin' ? 'all-access' : 'limited-access'
+            "iat" => time(),
+            "exp" => time() + (60 * 60), // Token expiration (1 hour)
+            "data" => [
+                "id" => $userId,
+                "username" => $username,
+                "email" => $email, // Include the email
+                "role" => $role
             ]
         ];
-
-        // Encode the JWT with the payload and secret key
+        
+        // Encode and return the token
         return JWT::encode($payload, self::$secretKey, self::$algorithm);
     }
+    
 
     // Enhanced decodeToken with better error handling and logging
     public static function decodeToken($token) {

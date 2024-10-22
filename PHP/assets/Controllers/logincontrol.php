@@ -23,19 +23,25 @@ class LoginController {
     public function handleLogin($email, $password) {
         // Authenticate user (assuming userModel has a method for this)
         $user = $this->userModel->checkUser($email, $password);
-
+    
         if ($user) {
             $userId = $user['id'] ?? null;  // Use null if 'id' is not set
+            $username = $user['username'] ?? 'guest'; // Default to 'guest' if 'username' is not set
             $userRole = $user['role'] ?? 'user';  // Default to 'user' if 'role' is not set
-        
-            // Now generate the token or do whatever processing you need
-            $jwtToken = $this->tokenGenerator->generateToken($userId, $user['username'], $userRole);
-        
+            
+            // Check if user is an admin
+            $isAdminSignup = ($userRole === 'admin'); // Set true if the user is an admin, otherwise false
+    
+            // Now generate the token
+            $jwtToken = $this->tokenGenerator->generateToken($userId, $username, $email, $isAdminSignup);
+    
             // Return response
             return [
                 'status' => 'success',
                 'message' => 'Login successful.',
                 'token' => $jwtToken,
+                'username' => $username,
+                'role' => $userRole,
                 'user_details' => $user
             ];
         } else {
@@ -44,8 +50,8 @@ class LoginController {
                 'message' => 'Invalid email or password.'
             ];
         }
-        
     }
+    
     
 
 

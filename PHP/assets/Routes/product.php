@@ -3,12 +3,10 @@
 require_once __DIR__ . "/../../config/Database.php";
 require_once __DIR__ . "/../Models/product.php";
 require_once __DIR__ . "/../Controllers/products.php";
-require_once __DIR__ . "/../../utilities/tokengenerator.php";
 
 use App\Config\Database;
 use App\Models\Product;
 use App\Controllers\ProductController;
-use App\Utilities\TokenGenerator;
 
 // Create database connection
 $database = new Database();
@@ -33,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Create the product controller instance
     $productController = new ProductController();
 
-    // Call the uploadProducts method with the token
-    $response = $productController->uploadProducts($input, $token);
+    // Call the uploadProducts method
+    $response = $productController->uploadProducts($input);
     echo json_encode($response);
 } else {
     // Handle invalid request method
