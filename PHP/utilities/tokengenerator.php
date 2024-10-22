@@ -4,11 +4,12 @@ namespace App\Utilities;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
 
 class TokenGenerator {
-    private static $secretKey = '1234Sheda';  // Store your secret key securely
+    private static $secretKey = '1234Sheda';
     private static $algorithm = 'HS256';      // Hashing algorithm for JWT
 
     // Generate token with different payloads for admin and user
@@ -27,7 +28,6 @@ class TokenGenerator {
                 'id' => $userId,
                 'username' => $username,
                 'role' => $userRole,      // Include the user's role
-                // You can add more claims here for admins or users as needed
                 'privileges' => $userRole === 'admin' ? 'all-access' : 'limited-access'
             ]
         ];
@@ -39,22 +39,24 @@ class TokenGenerator {
     // Enhanced decodeToken with better error handling and logging
     public static function decodeToken($token) {
         try {
-            // Attempt to decode the token
-            $decoded = JWT::decode($token, self::$secretKey, [self::$algorithm]);
+            // Store static properties in local variables
+            $secretKey = self::$secretKey;
+    
+            // Decode the token, passing the secret key wrapped in a Key object
+            $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
+    
             return [
                 'status' => 'success',
                 'data' => $decoded
             ];
         } catch (ExpiredException $e) {
-            // Handle token expiration
             return [
                 'status' => 'error',
                 'message' => 'Token has expired.',
                 'error_type' => 'expired_token',
-                'timestamp' => time()  // Log the current time for debugging
+                'timestamp' => time()
             ];
         } catch (SignatureInvalidException $e) {
-            // Handle invalid token signatures
             return [
                 'status' => 'error',
                 'message' => 'Invalid token signature.',
@@ -62,7 +64,6 @@ class TokenGenerator {
                 'timestamp' => time()
             ];
         } catch (\Exception $e) {
-            // Catch any other JWT decoding-related errors
             return [
                 'status' => 'error',
                 'message' => 'An error occurred while decoding the token: ' . $e->getMessage(),

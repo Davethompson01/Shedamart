@@ -3,12 +3,12 @@
 require_once __DIR__ . "/../../config/Database.php";
 require_once __DIR__ . "/../Models/product.php";
 require_once __DIR__ . "/../Controllers/products.php";
+require_once __DIR__ . "/../../utilities/tokengenerator.php";
 
 use App\Config\Database;
-require_once __DIR__ . "/../Models/product.php";
 use App\Models\Product;
-
 use App\Controllers\ProductController;
+use App\Utilities\TokenGenerator;
 
 // Create database connection
 $database = new Database();
@@ -18,14 +18,23 @@ Product::setDatabase($db);
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Read JSON input (expecting an array of products)
     $input = json_decode(file_get_contents('php://input'), true);
 
-    // Create an instance of ProductController
+    // Get the token from the headers
+    $headers = apache_request_headers();
+    if (!isset($headers['Authorization'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Authorization token not provided.']);
+        exit;
+    }
+
+    // Extract the token
+    $token = str_replace('Bearer ', '', $headers['Authorization']);
+
+    // Create the product controller instance
     $productController = new ProductController();
 
-    // Call the uploadProducts method on the instance
-    $response = $productController->uploadProducts($input);
+    // Call the uploadProducts method with the token
+    $response = $productController->uploadProducts($input, $token);
     echo json_encode($response);
 } else {
     // Handle invalid request method

@@ -2,11 +2,11 @@
 
 namespace App\Controllers;
 
-
 require_once(__DIR__ . "/../../vendor/autoload.php");
 require_once(__DIR__ . '/../Models/adminsignup.php');
 require_once(__DIR__ . "/../../utilities/tokengenerator.php");
 require_once(__DIR__ . "/../Requests/adminrequest.php");
+
 use App\config\Database;
 use App\Models\User;
 use App\Utilities\TokenGenerator;
@@ -21,110 +21,51 @@ class SignupController {
         $this->tokenGenerator = new TokenGenerator();
     }
 
-    public function handleSignup() {
+    public function handleSignup($role) {
         header('Content-Type: application/json');
         $signupRequest = new SignupRequest();
-        function getIpAddress() {
-            $ipAddress = $_SERVER['REMOTE_ADDR'];
-            if (filter_var($ipAddress, FILTER_VALIDATE_IP)) {
-                return $ipAddress;
-            } else {
-                return 'UNKNOWN';
-            }
-        }
-        
-        
         $data = $signupRequest->validateSignupData();
-        $data['ip_address'] = getIpAddress();
-        
 
         if (!$data) {
             return; // Errors are already handled in the request class
         }
 
         if ($this->userModel->checkEmail($data['email'])) {
-            $this->sendResponse(['status' => 'error', 'message' => 'Email already taken.']);
+            $this->sendResponse(409, ['status' => 'error', 'message' => 'Email already taken.']);
             return;
         }
-        $userId = $this->userModel->createUser($data );
-        // $token = $this->tokenGenerator->generateToken($userId, $data['username'], 'admin');
+
+        $userId = ($role === 'admin') ? $this->userModel->createAdminUser($data) : $this->userModel->createUser($data);
+        
         if ($userId) {
-            $token = $this->tokenGenerator->generateToken($userId, $data['username'], 'admin');
-    
-            // Now, update the user record with the token
-            $this->userModel->updateTokenuser($userId, $token);
-    
-            $this->sendResponse([
+            $token = $this->tokenGenerator->generateToken($userId, $data['username'], $role);
+            $this->userModel->updateToken($userId, $token);
+            $this->sendResponse(201, [
                 'status' => 'success',
-                'message' => 'Signup successful',
+                'message' => ucfirst($role) . ' signup successful',
                 'id' => $userId,
                 'username' => $data['username'],
                 'email' => $data['email'],
                 'number' => $data['number'],
-                'userType' => 'user',
+                'userType' => $role,
                 'token' => $token,
             ]);
         } else {
-            $this->sendResponse(['status' => 'error', 'message' => 'Signup failed. Please try again.']);
+            $this->sendResponse(500, ['status' => 'error', 'message' => ucfirst($role) . ' signup failed. Please try again.']);
         }
     }
 
-    
-
-
-    private function updateUserToken($userId, $token) {
-        $this->userModel->updateToken($userId, $token);
-    }
-
-    private function sendResponse(array $response) {
+    private function sendResponse($statusCode, array $response) {
+        http_response_code($statusCode);
         echo json_encode($response);
         exit;
     }
 
-
     public function handleAdminSignup() {
-        header('Content-Type: application/json');
-        $signupRequest = new SignupRequest();
-        function getIpAddress() {
-            $ipAddress = $_SERVER['REMOTE_ADDR'];
-            if (filter_var($ipAddress, FILTER_VALIDATE_IP)) {
-                return $ipAddress;
-            } else {
-                return 'UNKNOWN';
-            }
-        }
-        
-        $data = $signupRequest->validateAdminSignupData();
-        $data['ip_address'] = getIpAddress();
-        
-        if (!$data) {
-            return; 
-        }
-    
-        if ($this->userModel->checkEmail($data['email'])) {
-            $this->sendResponse(['status' => 'error', 'message' => 'Email already taken.']);
-            return;
-        }
-    
-        $userId = $this->userModel->createAdminUser ($data);
-        if ($userId) {
-            $token = $this->tokenGenerator->generateToken($userId, $data['username'], 'admin');
-            
-            // Now, update the user record with the token
-            $this->userModel->updateToken($userId, $token);
-            
-            $this->sendResponse([
-                'status' => 'success',
-                'message' => 'Admin signup successful',
-                'id' => $userId,
-                'username' => $data['username'],
-                'email' => $data['email'],
-                'number' => $data['number'],
-                'userType' => 'admin',
-                'token' => $token,
-            ]);
-        } else {
-            $this->sendResponse(['status' => 'error', 'message' => 'Admin signup failed. Please try again.']);
-        }
+        $this->handleSignup('admin');
+    }
+
+    public function handleUserSignup() {
+        $this->handleSignup('user');
     }
 }

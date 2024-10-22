@@ -14,34 +14,33 @@ class Product {
 
     // Create a product
     public static function createProduct($productData) {
-        // Ensure the database connection is set
         if (!self::$db) {
             return ['error' => 'Database connection not set'];
         }
-
-        // First, get the categories_id from the categories table using the category name
+    
+        // Get categories_id from the categories table
         $categoryQuery = "SELECT categories_id FROM categories WHERE category_name = :category_name";
         $categoryStmt = self::$db->prepare($categoryQuery);
         $categoryStmt->bindParam(':category_name', $productData['categories_name']);
         $categoryStmt->execute();
         $category = $categoryStmt->fetch(PDO::FETCH_ASSOC);
-
+    
         if (!$category) {
-            return ['error' => 'Invalid category name']; // Handle case where category is not found
+            return ['error' => 'Invalid category name'];
         }
-
-        // Insert the product with the categories_id
+    
+        $productToken = bin2hex(random_bytes(16));
+    
+        // Insert the product
         $query = "INSERT INTO products 
             (product_name, product_category, product_token, product_image, price, amount_in_stock, product_details, colors, origin, about_items) 
             VALUES 
             (:product_name, :product_category, :product_token, :product_image, :price, :amount_in_stock, :product_details, :colors, :origin, :about_items)";
         
         $stmt = self::$db->prepare($query);
-
-        // Bind parameters
         $stmt->bindParam(':product_name', $productData['product_name']);
-        $stmt->bindParam(':product_category', $category['categories_id']); // Bind the categories_id from the categories table
-        $stmt->bindParam(':product_token', $productData['product_token']);
+        $stmt->bindParam(':product_category', $category['categories_id']);
+        $stmt->bindParam(':product_token', $productToken);
         $stmt->bindParam(':product_image', $productData['product_image']);
         $stmt->bindParam(':price', $productData['price']);
         $stmt->bindParam(':amount_in_stock', $productData['amount_in_stock']);
@@ -49,15 +48,17 @@ class Product {
         $stmt->bindParam(':colors', $productData['colors']);
         $stmt->bindParam(':origin', $productData['origin']);
         $stmt->bindParam(':about_items', $productData['about_items']);
-
+    
         // Execute query
         if ($stmt->execute()) {
             return ['success' => 'Product uploaded successfully'];
         } else {
-            return ['error' => 'Failed to upload product'];
+            $errorInfo = $stmt->errorInfo();
+            return ['error' => 'Failed to upload product: ' . $errorInfo[2]];
         }
     }
-
+    
+    
     // Validate product data
     public static function validateProductData($data) {
         $errors = [];
