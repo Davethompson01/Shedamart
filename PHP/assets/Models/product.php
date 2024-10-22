@@ -97,4 +97,40 @@ class Product {
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public static function getRandomProducts($limit = 20) {
+        if (!self::$db) {
+            return ['error' => 'Database connection not set'];
+        }
+
+        // Query to select products randomly with a limit
+        $query = "SELECT product_name, product_image, price, amount_in_stock, product_details, colors, origin, about_items 
+                  FROM products 
+                  ORDER BY RAND() 
+                  LIMIT :limit";
+
+        $stmt = self::$db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getLastUpdatedProducts($limit = 20) {
+        if (!self::$db) {
+            return ['error' => 'Database connection not set'];
+        }
+
+        // Query to select the last updated products based on `updated_at`
+        $query = "SELECT product_name, product_image, price, amount_in_stock, product_details, colors, origin, about_items
+                  FROM products
+                  ORDER BY last_updated
+ DESC
+                  LIMIT :limit";
+
+        $stmt = self::$db->prepare($query);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

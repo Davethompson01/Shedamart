@@ -65,5 +65,14 @@ class ProductController {
     public function getProductsByCategory($categoryName) {
         return Product::getProductsByCategory($categoryName);
     }
+
+    public function getRandomProducts($limit = 20) {
+        return Product::getRandomProducts($limit);
+    }
+
+
+    public function getLastUpdatedProducts($limit =20) {
+        return Product::getLastUpdatedProducts($limit);
+    }
 }
 
