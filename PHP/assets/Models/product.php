@@ -144,11 +144,19 @@ class Product {
                   JOIN categories c ON p.product_category = c.categories_id
                   GROUP BY c.category_name
                   ORDER BY count DESC
-                  LIMIT 1";
+                  LIMIT 5";
     
         $stmt = self::$db->prepare($query);
         $stmt->execute();
     
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public static function updateStock($productId, $newStock) {
+        $query = "UPDATE products SET amount_in_stock = :new_stock WHERE product_id = :product_id";
+        $stmt = self::$db->prepare($query);
+        $stmt->bindParam(':new_stock', $newStock);
+        $stmt->bindParam(':product_id', $productId);
+    }    
+
 }
