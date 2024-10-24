@@ -132,4 +132,23 @@ class Product {
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+    public static function getMostCheckedCategory() {
+        if (!self::$db) {
+            return ['error' => 'Database connection not set'];
+        }
+    
+        $query = "SELECT c.category_name, COUNT(p.product_category) as count
+                  FROM products p
+                  JOIN categories c ON p.product_category = c.categories_id
+                  GROUP BY c.category_name
+                  ORDER BY count DESC
+                  LIMIT 1";
+    
+        $stmt = self::$db->prepare($query);
+        $stmt->execute();
+    
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }

@@ -26,19 +26,16 @@ class ProductController {
                     'product_name' => $product['product_name'],
                     'errors' => $validationErrors
                 ];
-                continue; // Skip to the next product if there are validation errors
+                continue;
             }
 
-            // Call the Product model's createProduct method
             $result = Product::createProduct($product);
             if (isset($result['error'])) {
-                // Handle errors and add to the errors array
                 $errors[] = [
                     'product_name' => $product['product_name'],
                     'errors' => $result['error']
                 ];
             } else {
-                // Add to successful uploads
                 $successfulUploads[] = [
                     'product_name' => $product['product_name'],
                     'status' => 'Uploaded successfully'
@@ -73,6 +70,9 @@ class ProductController {
 
     public function getLastUpdatedProducts($limit =20) {
         return Product::getLastUpdatedProducts($limit);
+    }
+    public function getMostCheckedCategory() {
+        return Product::getMostCheckedCategory();
     }
 }
 
