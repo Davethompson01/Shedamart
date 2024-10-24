@@ -9,12 +9,14 @@ include_once(__DIR__ . '/../../Config/Database.php');
 use PDO;
 
 class User{
-    private $db;
+    // private $db;
+    private static $db;
 
-    public function __construct( $db)
-    {
-        $this->db = $db;
-    }
+    // public function __construct( $db)
+    // {
+    //     $this->db = $db;
+    // }
+    
 
     public static function setDatabase(PDO $database) {
         self::$db = $database;
@@ -67,17 +69,11 @@ class User{
     public static function getUserByToken($token) {
         $query = "SELECT * FROM users WHERE user_token = :user_token LIMIT 1";
         $stmt = self::$db->prepare($query);
-        $stmt->bindParam(':auth_token', $token);
+        $stmt->bindParam(':user_token', $token);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function getProductByToken($productToken) {
-        $query = "SELECT * FROM products WHERE product_token = :product_token LIMIT 1";
-        $stmt = self::$db->prepare($query);
-        $stmt->bindParam(':product_token', $productToken);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+   
 }
 

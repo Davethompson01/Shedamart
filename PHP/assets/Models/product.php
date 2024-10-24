@@ -29,7 +29,7 @@ class Product {
             return ['error' => 'Invalid category name'];
         }
     
-        $productToken = bin2hex(random_bytes(16));
+        $productToken = bin2hex(random_bytes(7));
     
         // Insert the product
         $query = "INSERT INTO products 
@@ -159,4 +159,12 @@ class Product {
         $stmt->bindParam(':product_id', $productId);
     }    
 
+
+    public static function getProductByToken($productToken) {
+        $query = "SELECT * FROM products WHERE product_token = :product_token LIMIT 1";
+        $stmt = self::$db->prepare($query);
+        $stmt->bindParam(':product_token', $productToken);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
