@@ -165,6 +165,8 @@ class Product {
         $stmt = self::$db->prepare($query);
         $stmt->bindParam(':product_token', $productToken);
         $stmt->execute();
+        
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    
 }

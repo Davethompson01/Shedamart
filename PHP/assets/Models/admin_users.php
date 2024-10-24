@@ -3,11 +3,14 @@
 
 namespace App\Models;
 
-
+use App\Utilities\Authorization;
+require_once __DIR__ . "/../../vendor/autoload.php";
+require_once __DIR__ . "/../../utilities/authorisation.php";
 include_once(__DIR__ . '/../../Config/Database.php');
 
 use PDO;
-
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 class User{
     // private $db;
     private static $db;
@@ -67,11 +70,21 @@ class User{
     }
 
     public static function getUserByToken($token) {
-        $query = "SELECT * FROM users WHERE user_token = :user_token LIMIT 1";
-        $stmt = self::$db->prepare($query);
-        $stmt->bindParam(':user_token', $token);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $secretKey = "1234Sheda"; // Replace this with your actual secret key
+        $auth = new Authorization($secretKey); // Pass the secret key here
+        $decoded = $auth->authorize($token);  // Call the authorize method
+        
+        
+        if ($decoded['status'] === 'success') {
+            $userId = $decoded['data']['id']; // Extract the user ID from the decoded token
+            $query = "SELECT * FROM users WHERE user_id = :user_id"; // Ensure you have a correct query
+            $stmt = self::$db->prepare($query);
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC); // Return user details
+        } else {
+            return false;
+        }
     }
 
    

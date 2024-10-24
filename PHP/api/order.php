@@ -17,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status' => 'error', 'message' => 'Authorization token not provided']);
         exit;
     }
-    $token = str_replace('Bearer', '', $headers['Authorization']);
+    
+    $token = trim(str_replace('Bearer ', '', $headers['Authorization']));
     $productController = new ProductController();
     $response = $productController->placeOrder($input, $token);
     echo json_encode($response);

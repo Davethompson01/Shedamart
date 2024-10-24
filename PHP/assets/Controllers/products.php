@@ -87,39 +87,57 @@ class ProductController {
         if (!$user) {
             return ['status' => 'error', 'message' => 'Unauthorized user'];
         }
-
-        // Validate product data and availability
-        $product = Product::getProductByToken($orderData['product_token']);
-        if (!$product) {
-            return ['status' => 'error', 'message' => 'Invalid product'];
+    
+        // Check if user has a balance key
+        if (!isset($user['balance'])) {
+            return ['status' => 'error', 'message' => 'User balance information is not available.'];
         }
-
-        // Check product quantity
-        if ($product['amount_in_stock'] < $orderData['quantity']) {
-            return ['status' => 'error', 'message' => 'Insufficient stock'];
+    
+        // Validate product token and product data
+        if (!isset($orderData['productToken']) || !isset($orderData['productToken']['product_id'])) {
+            return ['status' => 'error', 'message' => 'Invalid product token'];
         }
-
-        // Calculate total price
-        $orderTotal = $product['price'] * $orderData['quantity'];
-
+    
+        $products = $orderData['productToken']['product_id'];
+        $totalOrderPrice = 0;
+    
+        // Check all products for stock and calculate total order price
+        foreach ($products as $productItem) {
+            $product = Product::getProductByToken($productItem['id']);
+            if (!$product) {
+                return ['status' => 'error', 'message' => 'Product not found: ' . $productItem['id']];
+            }
+    
+            // Check if the product has enough stock
+            if ($product['amount_in_stock'] < $productItem['quantity']) {
+                return ['status' => 'error', 'message' => 'Insufficient stock for product ID: ' . $productItem['id']];
+            }
+    
+            // Calculate total order price
+            $totalOrderPrice += $product['price'] * $productItem['quantity'];
+        }
+    
         // Check if user has enough balance
-        if ($user['balance'] < $orderTotal) {
+        if ($user['balance'] < $totalOrderPrice) {
             return ['status' => 'error', 'message' => 'Insufficient balance'];
         }
-
+    
         // Deduct user balance
-        $newBalance = $user['balance'] - $orderTotal;
+        $newBalance = $user['balance'] - $totalOrderPrice;
         User::updateBalance($user['user_id'], $newBalance);
-
-        // Update product stock
-        $newStock = $product['amount_in_stock'] - $orderData['quantity'];
-        Product::updateStock($product['product_id'], $newStock);
-
+    
+        // Update product stock and place the order
+        foreach ($products as $productItem) {
+            $product = Product::getProductByToken($productItem['id']);
+            $newStock = $product['amount_in_stock'] - $productItem['quantity'];
+            Product::updateStock($product['product_id'], $newStock);
+        }
+    
         // Place the order
-        $orderStatus = isset($orderData['order_status']) ? $orderData['order_status'] : 'published';
-        Order::createOrder($user['user_id'], $product['product_id'], $product['product_token'], $orderData['quantity'], $orderTotal, $orderStatus);
-
+        $orderStatus = isset($orderData['order_status']) ? $orderData['order_status'] : 'pending';
+        Order::createOrder($user['user_id'], $orderData['productToken'], $orderData['quantity'], $totalOrderPrice, $orderStatus);
+    
         return ['status' => 'success', 'message' => 'Order placed successfully', 'new_balance' => $newBalance];
-    }
+    }        
 }
 

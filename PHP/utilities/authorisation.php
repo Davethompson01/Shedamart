@@ -11,10 +11,11 @@ class Authorization {
     public function __construct($secretKey) {
         $this->secretKey = $secretKey;
     }
-
+    
     public function authorize($token) {
         try {
             $decoded = JWT::decode($token, new Key($this->secretKey, 'HS256'));
+            var_dump($decoded);
             return [
                 'status' => 'success',
                 'data' => [
