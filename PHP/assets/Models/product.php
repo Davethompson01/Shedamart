@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use PDO;
+use Exception;
 
 class Product {
     private static $db;
@@ -152,13 +153,8 @@ class Product {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function updateStock($productId, $newStock) {
-        $query = "UPDATE products SET amount_in_stock = :new_stock WHERE product_id = :product_id";
-        $stmt = self::$db->prepare($query);
-        $stmt->bindParam(':new_stock', $newStock);
-        $stmt->bindParam(':product_id', $productId);
-    }    
-
+   
+    
 
     public static function getProductByToken($productToken) {
         $query = "SELECT * FROM products WHERE product_token = :product_token LIMIT 1";
@@ -168,5 +164,12 @@ class Product {
         
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
+    public static function getProductById($productId) {
+        $query = "SELECT product_id, product_token, price FROM products WHERE product_id = :product_id LIMIT 1";
+        $stmt = self::$db->prepare($query);
+        $stmt->bindParam(':product_id', $productId);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
