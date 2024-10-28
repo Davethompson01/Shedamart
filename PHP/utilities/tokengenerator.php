@@ -10,9 +10,7 @@ use Firebase\JWT\SignatureInvalidException;
 
 class TokenGenerator {
     private static $secretKey = '1234Sheda';
-    private static $algorithm = 'HS256'; // Hashing algorithm for JWT
-
-    // Generate token with different payloads for admin and user
+    private static $algorithm = 'HS256';
     public function generateToken($userId, $username, $email, $isAdminSignup) {
         // Example code to assign role
         if ($isAdminSignup) {

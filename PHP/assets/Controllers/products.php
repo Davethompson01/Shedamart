@@ -80,64 +80,82 @@ class ProductController {
     public function getMostCheckedCategory() {
         return Product::getMostCheckedCategory();
     }
+    
+    
 
     public function placeOrder($orderData, $token) {
-        // Validate user token
+        function koboToNaira($kobo) {
+            return $kobo / 100;
+        }
+        
+        function nairaToKobo($naira) {
+            return (int)($naira * 100);         }
+    
         $user = User::getUserByToken($token);
-        if (!$user) {
-            return ['status' => 'error', 'message' => 'Unauthorized user'];
+        if (!$user || !isset($user['balance'])) {
+            return ['status' => 'error', 'message' => 'Unauthorized user or missing balance info.'];
         }
     
-        // Check if user has a balance key
-        if (!isset($user['balance'])) {
-            return ['status' => 'error', 'message' => 'User balance information is not available.'];
-        }
-    
-        // Validate product token and product data
-        if (!isset($orderData['productToken']) || !isset($orderData['productToken']['product_id'])) {
-            return ['status' => 'error', 'message' => 'Invalid product token'];
+        if (empty($orderData['productToken']) || !is_array($orderData['productToken']['product_id'])) {
+            return ['status' => 'error', 'message' => 'Invalid product data'];
         }
     
         $products = $orderData['productToken']['product_id'];
-        $totalOrderPrice = 0;
+        $totalOrderPriceKobo = 0;
+        $quantity = 0;
     
-        // Check all products for stock and calculate total order price
         foreach ($products as $productItem) {
+            if (empty($productItem['id']) || empty($productItem['quantity'])) {
+                return ['status' => 'error', 'message' => 'Invalid product data'];
+            }
+    
             $product = Product::getProductByToken($productItem['id']);
             if (!$product) {
-                return ['status' => 'error', 'message' => 'Product not found: ' . $productItem['id']];
+                return ['status' => 'error', 'message' => 'Product not found'];
             }
     
-            // Check if the product has enough stock
             if ($product['amount_in_stock'] < $productItem['quantity']) {
-                return ['status' => 'error', 'message' => 'Insufficient stock for product ID: ' . $productItem['id']];
+                return ['status' => 'error', 'message' => 'Insufficient stock for product'];
             }
     
-            // Calculate total order price
-            $totalOrderPrice += $product['price'] * $productItem['quantity'];
+            // No need to check again; proceed to calculate total price
+            $totalOrderPriceKobo += nairaToKobo($product['price']) * $productItem['quantity'];
         }
-    
-        // Check if user has enough balance
-        if ($user['balance'] < $totalOrderPrice) {
-            return ['status' => 'error', 'message' => 'Insufficient balance'];
-        }
-    
-        // Deduct user balance
-        $newBalance = $user['balance'] - $totalOrderPrice;
-        User::updateBalance($user['user_id'], $newBalance);
-    
-        // Update product stock and place the order
+
         foreach ($products as $productItem) {
             $product = Product::getProductByToken($productItem['id']);
-            $newStock = $product['amount_in_stock'] - $productItem['quantity'];
-            Product::updateStock($product['product_id'], $newStock);
+            
+            // Deduct stock only if the product was found
+            if ($product) {
+                // Update the stock level
+                $newStock = $product['amount_in_stock'] - $productItem['quantity'];
+                if ($newStock < 0) {
+                    return ['status' => 'error', 'message' => 'Insufficient stock for product'];
+                }
+                Product::updateStock($product['product_id'], $newStock);
+            }
         }
     
-        // Place the order
-        $orderStatus = isset($orderData['order_status']) ? $orderData['order_status'] : 'pending';
-        Order::createOrder($user['user_id'], $orderData['productToken'], $orderData['quantity'], $totalOrderPrice, $orderStatus);
+        if ($user['balance'] < $totalOrderPriceKobo) {
+            return ['status' => 'error', 'message' => 'Insufficient balance'];
+        }
+        $newBalanceKobo = $user['balance'] - $totalOrderPriceKobo;
+        User::updateBalance($user['user_id'], $newBalanceKobo);
+        foreach ($products as $productItem) {
+            $product = Product::getProductByToken($productItem['id']);
+            Product::updateStock($product['product_id'], $product['amount_in_stock'] - $productItem['quantity']);
+        }
     
-        return ['status' => 'success', 'message' => 'Order placed successfully', 'new_balance' => $newBalance];
-    }        
+        
+        $orderStatus = $orderData['order_status'] ?? 'pending';
+        Order::createOrder($user['user_id'], $orderData['productToken'], $totalOrderPriceKobo, $orderStatus);
+    
+        // Return the new balance
+        return [
+            'status' => 'success',
+            'message' => 'Order placed successfully',
+            'new_balance' => koboToNaira($newBalanceKobo)
+        ];
+    }
 }
 
