@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use PDO;
+use Exception;
 
 class Order {
     private static $db;
@@ -11,7 +12,6 @@ class Order {
         self::$db = $database;
     }
 
-    // Create an order
     public static function createOrder($userId, $products) {
         // Verify the user exists
         $userCheckQuery = "SELECT * FROM users WHERE user_id = :user_id";
@@ -33,27 +33,29 @@ class Order {
             }
 
             // Insert into orders table
-            $orderQuery = "INSERT INTO orders (user_id, total_amount) VALUES (:user_id, :total_amount)";
+            $orderQuery = "INSERT INTO orders (user_id, order_total) VALUES (:user_id, :order_total)";
             $orderStmt = self::$db->prepare($orderQuery);
             $orderStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            $orderStmt->bindParam(':total_amount', $totalAmount);
+            $orderStmt->bindParam(':order_total', $totalAmount);
             $orderStmt->execute();
             $orderId = self::$db->lastInsertId();
 
             // Insert each product as an order item
-            $orderItemQuery = "INSERT INTO order_items (order_id, product_id, quantity, price, total) VALUES (:order_id, :product_id, :quantity, :price, :total)";
-            $orderItemStmt = self::$db->prepare($orderItemQuery);
+            $orderItemQuery = "INSERT INTO order_items (order_id, product_id, quantity, price, total) 
+            VALUES (:order_id, :product_id, :quantity, :price, :total)";
+$orderItemStmt = self::$db->prepare($orderItemQuery);
 
-            foreach ($products as $product) {
-                $total = $product['price'] * $product['quantity'];
-                $orderItemStmt->execute([
-                    ':order_id' => $orderId,
-                    ':product_id' => $product['product_id'],
-                    ':quantity' => $product['quantity'],
-                    ':price' => $product['price'],
-                    ':total' => $total
-                ]);
-            }
+foreach ($products as $product) {
+$total = $product['price'] * $product['quantity'];
+$orderItemStmt->execute([
+ ':order_id' => $orderId,
+ ':product_id' => $product['product_id'], // Updated to product_id
+ ':quantity' => $product['quantity'],
+ ':price' => $product['price'],
+ ':total' => $total
+]);
+}
+
 
             self::$db->commit();
             return ['success' => 'Order created successfully', 'order_id' => $orderId];

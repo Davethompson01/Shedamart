@@ -4,6 +4,7 @@ namespace App\Utilities;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+require_once __DIR__ . '/../vendor/autoload.php';
 
 class Authorization {
     private $secretKey="1234Sheda";
@@ -13,6 +14,8 @@ class Authorization {
     }
     
     public function authorize($token) {
+        // Log the token for debugging
+        error_log("Token received: " . $token);
         try {
             $decoded = JWT::decode($token, new Key($this->secretKey, 'HS256'));
             var_dump($decoded);
@@ -21,11 +24,11 @@ class Authorization {
                 'data' => [
                     'id' => $decoded->data->id,
                     'username' => $decoded->data->username,
-                    'role' => $decoded->data->role // Extract the role
+                    'role' => $decoded->data->role
                 ]
             ];
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Unauthorized: Invalid token'];
+            return ['status' => 'error', 'message' => 'Unauthorized: Invalid token. Error: ' . $e->getMessage()];
         }
     }
 }

@@ -22,13 +22,14 @@ class TokenGenerator {
         // Create the payload
         $payload = [
             "iat" => time(),
-            "exp" => time() + (60 * 60), // Token expiration (1 hour)
+            "exp" => time() + (160 * 160), 
             "data" => [
                 "id" => $userId,
                 "username" => $username,
                 "email" => $email, // Include the email
                 "role" => $role
             ]
+
         ];
         
         // Encode and return the token
